@@ -1,0 +1,19 @@
+version: '2'
+
+vars:
+  repository: '{{.IMAGE_URL | default "ghcr.io/reload/dpl-platform-poc/dplsh"}}'
+  tag: '{{.IMAGE_TAG | default "latest"}}'
+  image: "{{.repository}}:{{.tag}}"
+
+tasks:
+  build:
+    cmds:
+      - docker build --no-cache -t {{.image}} --build-arg DPLSH_BUILD_VERSION="{{.tag}}" .
+
+  push:
+    vars:
+      latest: "{{.repository}}:latest"
+    cmds:
+      - docker tag {{.image}} {{.latest}}
+      - docker push {{.image}}
+      - docker push {{.latest}}
