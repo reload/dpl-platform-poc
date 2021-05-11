@@ -1,0 +1,65 @@
+version: "3"
+
+vars:
+  PLANTUML_RENDERER_VERSION: 1.2021.5
+  DRAWIO_EXPORT_VERSION: 3.2.0
+
+tasks:
+  mkdir:
+    cmds:
+      - mkdir -p diagrams/render-png
+      - mkdir -p diagrams/render-svg
+
+  clean:
+    cmds:
+      - rm -fr diagrams/render-png
+      - rm -fr diagrams/render-svg
+
+  render:
+    desc: Full render of all diagrams
+    cmds:
+      - task: render:plantuml
+      - task: render:drawio
+
+  build:plantuml:
+    desc: Build the container image we use for rendering plantuml
+    dir: ../tools/plantuml
+    cmds:
+      - IMAGE_URL=plantuml TAG=0.0.0 PLANTUML_VERSION={{.PLANTUML_RENDERER_VERSION}} task build
+
+  render:plantuml:
+    desc: Render plantuml diagrams
+    deps: [mkdir, build:plantuml]
+    cmds:
+      - |
+        docker run \
+          -v "${PWD}/diagrams/:/checkout" \
+          -w "/checkout" \
+          plantuml:0.0.0 \
+          -verbose -tpng -o render-png *.puml
+
+      - |
+        docker run \
+          -v "${PWD}/diagrams/:/checkout" \
+          -w "/checkout" \
+          plantuml:0.0.0 \
+          -verbose -tsvg -o render-svg *.puml
+
+  # SVGs rendered by draw is a bit wird, so stick to png as much as possible
+  render:drawio:
+    desc: Render drawio diagrams
+    deps: [mkdir]
+    cmds:
+      - |
+        docker run \
+          -e "DRAWIO_EXPORT_FILEEXT=png" \
+          -e "DRAWIO_EXPORT_CLI_OPTIONS=--scale 2" \
+          -e "DRAWIO_EXPORT_FOLDER=render-png" \
+          -v "${PWD}/diagrams:/data" rlespinasse/drawio-export:{{.DRAWIO_EXPORT_VERSION}} --remove-page-suffix
+
+      - |
+        docker run \
+          -e "DRAWIO_EXPORT_FILEEXT=svg" \
+          -e "DRAWIO_EXPORT_CLI_OPTIONS=--scale 2" \
+          -e "DRAWIO_EXPORT_FOLDER=render-svg" \
+          -v "${PWD}/diagrams:/data" rlespinasse/drawio-export:{{.DRAWIO_EXPORT_VERSION}} --remove-page-suffix
