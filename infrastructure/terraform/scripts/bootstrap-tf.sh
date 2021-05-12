@@ -14,10 +14,11 @@ set -euo pipefail
 IFS=$'\n\t'
 
 if [[ $# -lt 1 ]] ; then
-    echo "Syntax: $0 <terraform setup name>"
+    echo "Syntax: $0 <terraform setup name> <increment>"
     exit 1
 fi
 
+INC="${2:-001}"
 TF_SETUP_NAME=$1
 
 # Inspired by https://blog.jcorioland.io/archives/2019/09/09/terraform-microsoft-azure-remote-state-management.html
@@ -25,12 +26,12 @@ LOCATION="westeurope"
 # The Subscription we'll use for everything
 SUBSCRIPTION_ID="3b95f745-ffb4-4ff8-b3f9-45308d6fc4b8"
 # The resource-group we'll place the setup resources into.
-RESOURCE_GROUP="rg-dpl-poc-${TF_SETUP_NAME}-tfstate-001"
+RESOURCE_GROUP="rg-dpl-poc-${TF_SETUP_NAME}-tfstate-${INC}"
 
 # Base names of the resources.
-TF_STATE_STORAGE_ACCOUNT_NAME="stdplpoc${TF_SETUP_NAME}tf001"
+TF_STATE_STORAGE_ACCOUNT_NAME="stdplpoc${TF_SETUP_NAME}tf${INC}"
 TF_STATE_CONTAINER_NAME="state"
-KEYVAULT_NAME="kv-dplpoc-${TF_SETUP_NAME}-tfstate"
+KEYVAULT_NAME="kv-${TF_SETUP_NAME}-${INC}-tfstate"
 BLOB_NAME=${TF_SETUP_NAME}.tfstate
 
 # Create the resource group for holding Terraform resources.
@@ -108,6 +109,7 @@ echo "--- start ${TF_SETUP_NAME}/<env>/.dplsh.profile ---"
 cat <<EOT
 echo "Unlocking terraform state...."
 export ARM_ACCESS_KEY=\$(az keyvault secret show --subscription "${SUBSCRIPTION_ID}" --name tfstate-storage-key --vault-name $KEYVAULT_NAME --query value -o tsv)
+terraform init
 echo "Switching to terraform workspace <env>"
 terraform workspace select <env> 2> /dev/null || terraform workspace new <env>
 
