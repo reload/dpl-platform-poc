@@ -23,3 +23,4 @@ provider "azurerm" {
 provider "azuread" {
   tenant_id = "7235d751-8bbc-4ec9-97ba-f541c34cc434"
 }
+  

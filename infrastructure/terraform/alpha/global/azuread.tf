@@ -1,3 +1,8 @@
+data "azurerm_subscription" "primary" {
+}
+
+# Setup an AD Group that will contain "Contributors" - administrators that
+# should have full access.
 resource "azuread_group" "contributors" {
   display_name = "contributors"
   members = [
@@ -6,9 +11,6 @@ resource "azuread_group" "contributors" {
     # Mikkel
     "7fea7f9f-3049-4131-9fab-6d55fc28988f"
   ]
-}
-
-data "azurerm_subscription" "primary" {
 }
 
 # Grant all members of the contributor group the Contributor RBAC role

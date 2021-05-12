@@ -39,7 +39,8 @@ terraform init
 Environments:
 
 #### Global
-Resources that are global to the resource groups. Eg, any Azure AD resources
+Resources that are global to the resource groups. Eg, any Azure AD resources,
+and any configuration of access to the Terraform setup.
 
 #### poc01
 Full AKS environment.
