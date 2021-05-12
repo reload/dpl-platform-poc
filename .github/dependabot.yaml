@@ -1,0 +1,26 @@
+version: 2
+updates:
+- package-ecosystem: github-actions
+  directory: "/"
+  schedule:
+    interval: daily
+    time: '04:00'
+  open-pull-requests-limit: 10
+- package-ecosystem: docker
+  directory: "/dpl-platform-poc/tools/dplsh"
+  schedule:
+    interval: daily
+    time: '04:00'
+  open-pull-requests-limit: 10
+- package-ecosystem: docker
+  directory: "dpl-platform-poc/tools/plantuml"
+  schedule:
+    interval: daily
+    time: '04:00'
+  open-pull-requests-limit: 10
+- package-ecosystem: terraform
+  directory: "infrastructure/app-environments"
+  schedule:
+    interval: daily
+    time: '04:00'
+  open-pull-requests-limit: 10
