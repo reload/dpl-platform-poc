@@ -14,7 +14,7 @@ resource "azurerm_key_vault_access_policy" "contributor_manage_secret_policy" {
   object_id    = azuread_group.contributors.object_id
 
   secret_permissions = [
-      "List",
-      "Get"
+    "List",
+    "Get"
   ]
 }
