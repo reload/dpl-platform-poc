@@ -4,7 +4,7 @@
 # variable "node_pool_name" {}
 # variable "node_pool_node_count" {}
 
-resource "azurerm_kubernetes_cluster" "example" {
+resource "azurerm_kubernetes_cluster" "cluster" {
   name                = "${var.workspace}-cluster"
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
@@ -31,10 +31,6 @@ resource "azurerm_kubernetes_cluster" "example" {
 
     http_application_routing {
       enabled = false
-    }
-
-    kube_dashboard {
-      enabled = true
     }
 
     oms_agent {
