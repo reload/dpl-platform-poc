@@ -1,6 +1,7 @@
-variable "location" {}
+# variable "location" {}
+# variable "workspace" {}
 
-resource "azurerm_resource_group" "poc02" {
-  name     = "poc02"
+resource "azurerm_resource_group" "rg" {
+  name     =  "${var.workspace}-rg"
   location = var.location
 }
