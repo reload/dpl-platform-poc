@@ -1,9 +1,3 @@
-# variable "location" {}
-# variable "workspace" {}
-# variable "cluster_vm_size" {}
-# variable "node_pool_name" {}
-# variable "node_pool_node_count" {}
-
 resource "azurerm_kubernetes_cluster" "cluster" {
   name                = "${var.workspace}-cluster"
   location            = var.location
