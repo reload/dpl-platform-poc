@@ -1,0 +1,14 @@
+version: '3'
+
+includes:
+  common: ./Common.yml
+
+tasks:
+  create:
+    cmds:
+      - echo 'Hello Mikkel'
+      # - kubectl create namespace ingress-basic
+      # - ./scripts/helmInstallNginxIngress.sh
+    deps:
+    - common:is-installed-helm
+    - common:is-installed-kubectl

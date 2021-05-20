@@ -1,0 +1,11 @@
+version: '3'
+
+includes:
+  ingress: ./Ingress.yml
+  demo-apps: ./DemoApplications.yml
+
+tasks:
+  setup-ingress:
+    cmds:
+      - ingress:create
+      - demo-apps:install

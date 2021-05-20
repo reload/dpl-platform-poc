@@ -1,0 +1,13 @@
+version: '3'
+
+includes:
+  common: ./Common.yml
+
+tasks:
+  install:
+    cmds:
+      - kubectl apply -f manifests/aks-helloworld-one.yaml --namespace ingress-basic
+      - kubectl apply -f manifests/aks-helloworld-two.yaml --namespace ingress-basic
+      - kubectl apply -f manifests/hello-world-ingress.yaml
+    deps:
+    - common:is-installed-kubectl
