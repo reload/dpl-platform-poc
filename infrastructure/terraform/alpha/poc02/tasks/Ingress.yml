@@ -1,8 +1,5 @@
 version: '3'
 
-includes:
-  common: ./Common.yml
-
 tasks:
   create:
     cmds:
@@ -10,5 +7,13 @@ tasks:
       # - kubectl create namespace ingress-basic
       # - ./scripts/helmInstallNginxIngress.sh
     deps:
-    - common:is-installed-helm
-    - common:is-installed-kubectl
+    - is-installed-helm
+    - is-installed-kubectl
+  is-installed-helm:
+    preconditions:
+      - sh: "helm"
+        msg: "helm is not installed. Cannot continue..."
+  is-installed-kubectl:
+    preconditions:
+      - sh: "kubectl"
+        msg: "kubectl is not installed. Cannot continue..."

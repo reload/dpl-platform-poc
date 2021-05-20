@@ -1,11 +1,12 @@
 version: '3'
 
 includes:
+  common: ./Common.yml
   ingress: ./Ingress.yml
   demo-apps: ./DemoApplications.yml
 
 tasks:
   setup-ingress:
     cmds:
-      - ingress:create
-      - demo-apps:install
+      - task ingress:create
+      - task demo-apps:install

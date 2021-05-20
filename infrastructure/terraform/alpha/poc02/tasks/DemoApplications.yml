@@ -1,8 +1,5 @@
 version: '3'
 
-includes:
-  common: ./Common.yml
-
 tasks:
   install:
     cmds:
@@ -10,4 +7,8 @@ tasks:
       - kubectl apply -f manifests/aks-helloworld-two.yaml --namespace ingress-basic
       - kubectl apply -f manifests/hello-world-ingress.yaml
     deps:
-    - common:is-installed-kubectl
+    - is-installed-kubectl
+  is-installed-kubectl:
+    preconditions:
+      - sh: "kubectl"
+        msg: "kubectl is not installed. Cannot continue..."
