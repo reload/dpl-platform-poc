@@ -3,9 +3,9 @@ version: '3'
 tasks:
   create:
     cmds:
-      - echo 'Hello Mikkel'
-      # - kubectl create namespace ingress-basic
-      # - ./scripts/helmInstallNginxIngress.sh
+      - kubectl create namespace ingress-basic
+      - ./scripts/helmInstallnginxIngress.sh
+      - ./scripts/helmInstallCertManager.sh
     deps:
     - is-installed-helm
     - is-installed-kubectl
