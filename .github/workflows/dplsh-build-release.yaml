@@ -28,10 +28,21 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2.3.4
+    - name: Install Task
+      uses: Arduino/actions/setup-taskfile@master
     # Generate a sane tag based on current git ref (branch, tag, etc).
     - uses: rlespinasse/github-slug-action@v3.x
     - name: Build ${{env.image}} container image
-      run: docker build -t working-image:0.0.0 .
+      env:
+        IMAGE_URL: working-image
+        IMAGE_TAG: 0.0.0
+      run: task build
+      working-directory: tools/dplsh
+    - name: Test ${{env.image}} container image
+      env:
+        IMAGE_URL: working-image
+        IMAGE_TAG: 0.0.0
+      run: task test
       working-directory: tools/dplsh
     # Publish to container registry if this was a push event (not a PR).
     - name: Publish image to registry

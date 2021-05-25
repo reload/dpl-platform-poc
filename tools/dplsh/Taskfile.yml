@@ -17,3 +17,10 @@ tasks:
       - docker tag {{.image}} {{.latest}}
       - docker push {{.image}}
       - docker push {{.latest}}
+
+  test:
+    env:
+      DPLSH_IMAGE: "{{.image}}"
+    cmds:
+      - ./dplsh.sh terraform -version
+      - ./dplsh.sh helm version
