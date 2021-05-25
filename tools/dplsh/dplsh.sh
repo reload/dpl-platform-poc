@@ -19,7 +19,7 @@ find-up () {
 }
 
 PROFILE_FILE=
-DOCKER_IMAGE="ghcr.io/reload/dpl-platform-poc/dplsh:latest"
+DOCKER_IMAGE="${DPLSH_IMAGE:-ghcr.io/reload/dpl-platform-poc/dplsh:latest}"
 CHDIR=
 SHELL_ROOT="${PWD}"
 
