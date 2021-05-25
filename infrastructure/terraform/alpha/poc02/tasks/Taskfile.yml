@@ -6,6 +6,9 @@ includes:
   demo-apps: ./DemoApplications.task.yml
 
 tasks:
+  build-cluster:
+    cmds:
+      - terraform apply
   setup-ingress:
     cmds:
       - task: mount-ak
