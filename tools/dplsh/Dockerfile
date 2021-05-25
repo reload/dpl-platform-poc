@@ -3,14 +3,17 @@
 ARG AZURE_CLI_TAG=latest
 ARG DPLSH_BUILD_VERSION=latest
 
+# Use an intermediate images as a way to have dependabot track our dependency
+FROM alpine/helm:3.5.4 as helm
+FROM hashicorp/terraform:0.15.1 as terraform
+
 # We use the official azure cli as a base-image. It is itself based on alpine
 # and is quite minimal.
 FROM mcr.microsoft.com/azure-cli:$AZURE_CLI_TAG
 ARG TASK_VERSION=v3.0.0
-ARG TERRAFORM_RELEASE=0.15.1
 LABEL org.opencontainers.image.source https://github.com/reload/dpl-platform-poc
 
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+SHELL ["/bin/bash", "-ox", "pipefail", "-c"]
 WORKDIR /tmp
 
 # TODO - this will install the latest version - we should pin to the version we
@@ -28,10 +31,12 @@ RUN apk add --no-cache \
 RUN curl -sL https://taskfile.dev/install.sh | bash -s -- -b /usr/local/bin ${TASK_VERSION}
 
 WORKDIR /tmp
-RUN curl -O https://releases.hashicorp.com/terraform/${TERRAFORM_RELEASE}/terraform_${TERRAFORM_RELEASE}_linux_amd64.zip \
-  && unzip terraform_${TERRAFORM_RELEASE}_linux_amd64.zip \
-  && mv terraform /usr/bin \
-  && rm terraform_${TERRAFORM_RELEASE}_linux_amd64.zip
+
+# Add Terraform
+COPY --from=terraform /bin/terraform /bin/
+
+# Add Helm
+COPY --from=helm /usr/bin/helm /usr/bin/
 
 # Create a dplsh user and switch to it to avoid running the shell as root
 RUN adduser -D --shell /bin/bash dplsh
