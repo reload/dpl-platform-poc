@@ -21,6 +21,7 @@ tasks:
   test:
     env:
       DPLSH_IMAGE: "{{.image}}"
+      DPLSH_NON_INTERACTIVE: "true"
     cmds:
       - ./dplsh.sh terraform -version
       - ./dplsh.sh helm version

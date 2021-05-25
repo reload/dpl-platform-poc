@@ -204,10 +204,15 @@ for key in "${!docker_creds[@]}"; do
   ADDITIONAL_ARGS+=(-e "${key}=${docker_creds[$key]}")
 done
 
+# We run in interactive mode unless if we're in DPLSH_NON_INTERACTIVE.
+if [[ -z "${DPLSH_NON_INTERACTIVE:-}" ]]; then
+  ADDITIONAL_ARGS+=(-i)
+fi
+
 docker run --hostname=dplsh \
     --rm \
     "${ADDITIONAL_ARGS[@]}" \
-    -ti \
+    -t \
     -v "${HOME}/.azure:/home/dplsh/.azure-host" \
     -v "${SHELL_ROOT}:/home/dplsh/host_mount" \
     -w "/home/dplsh/host_mount/${CHDIR}" \
