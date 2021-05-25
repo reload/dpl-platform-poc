@@ -6,7 +6,7 @@ tasks:
       # Create ingress namespace if it does not exist.
       - kubectl create namespace ingress-basic --dry-run=client -o yaml | kubectl apply -f -
       # Install Ingress.
-      - ./scripts/helmInstallnginxIngress.sh
+      - ../scripts/helmInstallnginxIngress.sh
   setup:
     cmds:
       - task: install
