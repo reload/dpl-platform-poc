@@ -12,7 +12,7 @@ fi
 # the host.
 if [[ -d /home/dplsh/.azure-host ]] ; then
     mkdir -p /home/dplsh/.azure
-    rsync -a --exclude=logs /home/dplsh/.azure-host/ /home/dplsh/.azure/
+    rsync -a --exclude=logs --exclude=commands --exclude=telemetry /home/dplsh/.azure-host/ /home/dplsh/.azure/
 fi
 
 PATH=${PATH}:${HOME}/bin
