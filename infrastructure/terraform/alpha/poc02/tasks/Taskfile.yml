@@ -1,12 +1,15 @@
 version: '3'
 
 includes:
-  common: ./Common.yml
-  ingress: ./Ingress.yml
+  ingress: ./IngressAndCert.yml
   demo-apps: ./DemoApplications.yml
 
 tasks:
   setup-ingress:
     cmds:
+      # Authenticate at Azure in order to get access to cluster.
+      - az aks get-credentials --resource-group poc02-rg --name poc02-cluster
+      # Create Ingress and cert-manager setup.
       - task ingress:create
+      # Prove that Ingress and the cert manager work.
       - task demo-apps:install

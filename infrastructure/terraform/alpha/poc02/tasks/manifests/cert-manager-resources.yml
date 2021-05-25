@@ -25,4 +25,4 @@ spec:
   issuerRef:
     name: letsencrypt-staging
   dnsNames:
-  - mikcluster.reload.dk
+  - poc02-cluster.reload.dk

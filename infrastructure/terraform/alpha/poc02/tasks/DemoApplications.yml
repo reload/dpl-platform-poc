@@ -3,12 +3,7 @@ version: '3'
 tasks:
   install:
     cmds:
+      # Install demo application deployments and ingress resource.
       - kubectl apply -f manifests/aks-helloworld-one.yaml --namespace ingress-basic
       - kubectl apply -f manifests/aks-helloworld-two.yaml --namespace ingress-basic
       - kubectl apply -f manifests/hello-world-ingress.yaml
-    deps:
-    - is-installed-kubectl
-  is-installed-kubectl:
-    preconditions:
-      - sh: "kubectl"
-        msg: "kubectl is not installed. Cannot continue..."

@@ -3,17 +3,9 @@ version: '3'
 tasks:
   create:
     cmds:
-      - kubectl create namespace ingress-basic
+      # Create ingress namespace if it does not exist.
+      - kubectl create namespace ingress-basic --dry-run=client -o yaml | kubectl apply -f -
+      # Install Ingress.
       - ./scripts/helmInstallnginxIngress.sh
+      # Install cert-manager.
       - ./scripts/helmInstallCertManager.sh
-    deps:
-    - is-installed-helm
-    - is-installed-kubectl
-  is-installed-helm:
-    preconditions:
-      - sh: "helm"
-        msg: "helm is not installed. Cannot continue..."
-  is-installed-kubectl:
-    preconditions:
-      - sh: "kubectl"
-        msg: "kubectl is not installed. Cannot continue..."
