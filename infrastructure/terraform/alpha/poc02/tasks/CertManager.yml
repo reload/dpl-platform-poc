@@ -1,0 +1,14 @@
+version: '3'
+
+tasks:
+  install:
+    cmds:
+      - ./scripts/helmInstallCertManager.sh
+  create-kube-resources:
+    cmds:
+      - kubectl create -f manifests/cert-manager-issuer-staging.yml
+      - kubectl create -f manifests/cert-manager-certificate-staging.yml
+  setup:
+    cmds:
+      - task: install
+      - task: create-kube-resources

@@ -1,15 +1,13 @@
 apiVersion: cert-manager.io/v1
-kind: Issuer
+kind: ClusterIssuer
 metadata:
   name: letsencrypt-prod
-  namespace: mini-api
 spec:
   acme:
-    # now pointing to Let's Encrypt production API
-    server: https://acme-v02.api.letsencrypt.org/directory
+    # Staging API
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
     email: mikkel@reload.dk
     privateKeySecretRef:
-      # storing key material for the ACME account in dedicated secret
       name: account-key-prod
     solvers:
     - http01:
