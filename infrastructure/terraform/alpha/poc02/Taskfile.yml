@@ -11,18 +11,18 @@ includes:
 
 tasks:
 
-  # Build Azure kluster infrastructure.
   infrastructure:build:
+    desc: Builds Azure kluster infrastructure.
     cmds:
       - terraform apply
 
-  # Tear down aks cluster
   infrastructure:destroy:
+    desc: Tears down aks cluster.
     cmds:
       - terraform destroy
 
-  # Installs ingress and cert manager.
   ingress:setup:
+    desc: Installs ingress and cert manager.
     deps: [aks:mount]
     cmds:
       # Setup Ingress.
@@ -30,25 +30,25 @@ tasks:
       # Setup cert-manager.
       - task: cert-manager:setup
  
-  # Installs demo applications.
   demo-apps:setup:
+    desc: Installs demo applications.
     deps: [aks:mount]
     cmds:
       - task: demo-apps:install
  
- # Adds Loki logging.
   logging:setup:
+    desc: Add Loki logging.
     deps: [aks:mount]
     cmds:
       - task: logging:setup
  
- # Authenticates to aks cluster.
   aks:mount:
+    desc: Authenticates to aks cluster.
     cmds:
       - az aks get-credentials --resource-group {{.workspace}}-rg --name {{.workspace}}-cluster
  
-  # Main task for running the whole show.
   setup:
+    desc: Main task for setting up everything.
     deps:
       - infrastructure:build
     cmds:

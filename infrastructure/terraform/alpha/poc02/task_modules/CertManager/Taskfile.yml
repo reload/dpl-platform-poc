@@ -5,10 +5,12 @@ tasks:
     dir: "$TASK_MODULES_DIR/CertManager"
     cmds:
       - ./scripts/helmInstallCertManager.sh
+
   kube:create:resources:
     dir: "$TASK_MODULES_DIR/CertManager"
     cmds:
       - kubectl apply -f manifests/cert-manager-issuer-production.yml
+      
   setup:
     cmds:
       - task: install
