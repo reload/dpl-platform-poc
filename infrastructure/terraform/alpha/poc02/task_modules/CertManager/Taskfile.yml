@@ -6,7 +6,6 @@ env:
 
 tasks:
   install:
-    dir: public/www
     cmds:
       - $MODULE_DIR/scripts/helmInstallCertManager.sh
   create-kube-resources:
