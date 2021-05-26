@@ -44,6 +44,8 @@ tasks:
  
   aks:mount:
     desc: Authenticates to aks cluster.
+    status:
+      - "[ $(kubectl config view --output jsonpath='{.current-context}') == '{{.workspace}}-cluster' ] || exit 1"
     cmds:
       - az aks get-credentials --resource-group {{.workspace}}-rg --name {{.workspace}}-cluster
  
