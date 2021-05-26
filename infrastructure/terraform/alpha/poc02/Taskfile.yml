@@ -1,9 +1,9 @@
 version: '3'
 
 includes:
-  ingress: ./Ingress.task.yml
-  cert-manager: ./CertManager.task.yml
-  demo-apps: ./DemoApplications.task.yml
+  ingress: ./task_modules/Ingress/Taskfile.yml
+  cert-manager: ./task_modules/CertManager/Taskfile.yml
+  demo-apps: ./task_modules/DemoApplications/Taskfile.yml
 
 tasks:
   build-cluster:
@@ -13,11 +13,11 @@ tasks:
     cmds:
       - task: mount-ak
       # Setup Ingress.
-      - task ingress:setup
+      - task: ingress:setup
       # Setup cert-manager.
-      - task cert-manager:setup
+      - task: cert-manager:setup
       # Prove that Ingress and the cert manager work.
-      - task demo-apps:install
+      - task: demo-apps:install
   mount-ak:
     cmds:
       # Authenticate at Azure in order to get access to cluster.
