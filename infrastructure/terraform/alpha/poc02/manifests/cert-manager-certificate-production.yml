@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  # different name
+  name: miniapi-prod
+  namespace: mini-api
+spec:
+  # dedicate secret for the TLS cert
+  secretName: miniapi-production-certificate
+  issuerRef:
+    # referencing the production issuer
+    name: letsencrypt-prod
+  dnsNames:
+  - mikkel.ddf.reload.dk
