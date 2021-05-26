@@ -50,9 +50,9 @@ tasks:
   # Main task for running the whole show.
   setup:
     deps:
-      - mount-ak
       - build-cluster
-      - setup-ingress
-      - setup-logging
     cmds:
+      - task: mount-ak
+      - task: setup-ingress
+      - task: setup-logging
       - task: setup-demo-apps

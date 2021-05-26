@@ -1,17 +1,15 @@
 version: '3'
 
-env:
-  MODULE_DIR:
-    sh: echo $TASK_MODULES_DIR/CertManager
-
 tasks:
   install:
+    dir: "$TASK_MODULES_DIR/CertManager"
     cmds:
-      - $MODULE_DIR/scripts/helmInstallCertManager.sh
-  create-kube-resources:
+      - ./scripts/helmInstallCertManager.sh
+  kube:create:resources:
+    dir: "$TASK_MODULES_DIR/CertManager"
     cmds:
-      - kubectl create -f $MODULE_DIR/manifests/cert-manager-issuer-production.yml
+      - kubectl apply -f manifests/cert-manager-issuer-production.yml
   setup:
     cmds:
       - task: install
-      - task: create-kube-resources
+      - task: kube:create:resources

@@ -1,16 +1,13 @@
 version: '3'
 
-env:
-  MODULE_DIR:
-    sh: echo $TASK_MODULES_DIR/Loki
-
 tasks:
   install:
+    dir: "$TASK_MODULES_DIR/Loki"
     deps: [add-ns, add-helm-repo]
     cmds:
-      - helm upgrade --install loki -n loki -f $MODULE_DIR/conf/loki-values.yml grafana/loki
+      - helm upgrade --install loki -n loki -f conf/loki-values.yml grafana/loki
       - helm upgrade --install -n loki promtail grafana/promtail --set "loki.serviceName=loki" --set "config.lokiAddress=http://loki:3100/loki/api/v1/push"
-      - helm upgrade --install grafana -n loki -f $MODULE_DIR/conf/grafana-values.yml grafana/grafana
+      - helm upgrade --install grafana -n loki -f conf/grafana-values.yml grafana/grafana
   add-ns:
     cmds:
       - kubectl create namespace loki --dry-run=client -o yaml | kubectl apply -f -
