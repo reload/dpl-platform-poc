@@ -1,24 +1,60 @@
 version: '3'
 
+vars:
+  workspace: '{{.WORKSPACE | default "poc02"}}'
+
 includes:
   ingress: ./task_modules/Ingress/Taskfile.yml
+  logging: ./task_modules/Loki/Taskfile.yml
   cert-manager: ./task_modules/CertManager/Taskfile.yml
   demo-apps: ./task_modules/DemoApplications/Taskfile.yml
 
 tasks:
-  build-cluster:
+
+  infrastructure:build:
+    desc: Builds Azure kluster infrastructure.
     cmds:
       - terraform apply
-  setup-ingress:
+
+  infrastructure:destroy:
+    desc: Tears down aks cluster.
     cmds:
-      - task: mount-ak
+      - terraform destroy
+
+  ingress:setup:
+    desc: Installs ingress and cert manager.
+    deps: [aks:mount]
+    cmds:
       # Setup Ingress.
       - task: ingress:setup
       # Setup cert-manager.
       - task: cert-manager:setup
-      # Prove that Ingress and the cert manager work.
-      - task: demo-apps:install
-  mount-ak:
+ 
+  demo-apps:setup:
+    desc: Installs demo applications.
+    deps: [aks:mount]
     cmds:
-      # Authenticate at Azure in order to get access to cluster.
-      - az aks get-credentials --resource-group poc02-rg --name poc02-cluster
+      - task: demo-apps:install
+ 
+  logging:setup:
+    desc: Add Loki logging.
+    deps: [aks:mount]
+    cmds:
+      - task: logging:setup
+ 
+  aks:mount:
+    desc: Authenticates to aks cluster.
+    status:
+      - "[ $(kubectl config view --output jsonpath='{.current-context}') == '{{.workspace}}-cluster' ] || exit 1"
+    cmds:
+      - az aks get-credentials --resource-group {{.workspace}}-rg --name {{.workspace}}-cluster
+ 
+  setup:
+    desc: Main task for setting up everything.
+    deps:
+      - infrastructure:build
+    cmds:
+      - task: aks:mount
+      - task: ingress:setup
+      - task: logging:setup
+      - task: demo-apps:setup

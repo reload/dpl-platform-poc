@@ -1,14 +1,11 @@
 version: '3'
 
-env:
-  MODULE_DIR:
-    sh: echo $TASK_MODULES_DIR/DemoApplications
-
 tasks:
   install:
+    desc: Installs demo application deployments and ingress resource.
+    dir: "$TASK_MODULES_DIR/DemoApplications"
     cmds:
-      # Install demo application deployments and ingress resource.
-      - kubectl apply -f $MODULE_DIR/manifests/aks-helloworld-one.yaml -n ingress-basic
-      - kubectl apply -f $MODULE_DIR/manifests/aks-helloworld-two.yaml -n ingress-basic
-      - kubectl apply -f $MODULE_DIR/manifests/hello-world-ingress.yaml
+      - kubectl apply -f ./manifests/aks-helloworld-one.yaml -n ingress-basic
+      - kubectl apply -f ./manifests/aks-helloworld-two.yaml -n ingress-basic
+      - kubectl apply -f ./manifests/hello-world-ingress.yaml
 
