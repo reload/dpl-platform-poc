@@ -3,18 +3,18 @@ version: '3'
 tasks:
   install:
     dir: "$TASK_MODULES_DIR/Loki"
-    deps: [add-ns, add-helm-repo]
+    deps: [kube:create:ns, helm:repo:add:grafana]
     cmds:
       - helm upgrade --install loki -n loki -f conf/loki-values.yml grafana/loki
       - helm upgrade --install -n loki promtail grafana/promtail --set "loki.serviceName=loki" --set "config.lokiAddress=http://loki:3100/loki/api/v1/push"
       - helm upgrade --install grafana -n loki -f conf/grafana-values.yml grafana/grafana
-  add-ns:
+  kube:create:ns:
     cmds:
       - kubectl create namespace loki --dry-run=client -o yaml | kubectl apply -f -
-  add-helm-repo:
+  helm:repo:add:grafana:
     cmds:
       - helm repo add grafana https://grafana.github.io/helm-charts && helm repo update
-  get-admin-password:
+  grafana:get:password:
     cmds:
       - kubectl get secret -n loki grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
   setup:
