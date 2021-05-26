@@ -1,7 +1,11 @@
 version: '3'
 
+vars:
+  workspace: '{{.WORKSPACE | default "poc02"}}'
+
 includes:
   ingress: ./task_modules/Ingress/Taskfile.yml
+  logging: ./task_modules/Loki/Taskfile.yml
   cert-manager: ./task_modules/CertManager/Taskfile.yml
   demo-apps: ./task_modules/DemoApplications/Taskfile.yml
 
@@ -9,16 +13,35 @@ tasks:
   build-cluster:
     cmds:
       - terraform apply
+ 
   setup-ingress:
+    deps: [mount-ak]
     cmds:
-      - task: mount-ak
       # Setup Ingress.
       - task: ingress:setup
       # Setup cert-manager.
       - task: cert-manager:setup
-      # Prove that Ingress and the cert manager work.
+ 
+  setup-demo-apps:
+    deps: [mount-ak]
+    cmds:
       - task: demo-apps:install
+ 
+  setup-logging:
+    deps: [mount-ak]
+    cmds:
+      - task: logging:setup
+ 
   mount-ak:
     cmds:
       # Authenticate at Azure in order to get access to cluster.
-      - az aks get-credentials --resource-group poc02-rg --name poc02-cluster
+      - az aks get-credentials --resource-group {{.workspace}}-rg --name {{.workspace}}-cluster
+ 
+  setup:
+    deps:
+      - mount-ak
+      - build-cluster
+      - setup-ingress
+      - setup-logging
+    cmds:
+      - task: setup-demo-apps
