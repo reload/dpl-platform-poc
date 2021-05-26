@@ -10,10 +10,18 @@ includes:
   demo-apps: ./task_modules/DemoApplications/Taskfile.yml
 
 tasks:
+
+  # Build Azure kluster infrastructure.
   build-cluster:
     cmds:
       - terraform apply
- 
+
+  # Tear down aks cluster
+  destroy-cluster:
+    cmds:
+      - terraform destroy
+
+  # Installs ingress and cert manager.
   setup-ingress:
     deps: [mount-ak]
     cmds:
@@ -22,21 +30,24 @@ tasks:
       # Setup cert-manager.
       - task: cert-manager:setup
  
+  # Installs demo applications.
   setup-demo-apps:
     deps: [mount-ak]
     cmds:
       - task: demo-apps:install
  
+ # Adds Loki logging.
   setup-logging:
     deps: [mount-ak]
     cmds:
       - task: logging:setup
  
+ # Authenticates to aks cluster.
   mount-ak:
     cmds:
-      # Authenticate at Azure in order to get access to cluster.
       - az aks get-credentials --resource-group {{.workspace}}-rg --name {{.workspace}}-cluster
  
+  # Main task for running the whole show.
   setup:
     deps:
       - mount-ak
