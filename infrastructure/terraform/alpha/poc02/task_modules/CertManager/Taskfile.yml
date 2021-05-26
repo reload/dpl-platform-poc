@@ -15,5 +15,4 @@ tasks:
   setup:
     cmds:
       - task: install
-      - sleep 10
       - task: create-kube-resources
