@@ -1,0 +1,133 @@
+elasticsearchHost: https://none.com
+harborURL: "https://registry.<basedomain>"
+harborAdminPassword: <add>
+kibanaURL: https://none.com
+logsDBAdminPassword: none
+s3FilesAccessKeyID: none
+s3FilesBucket: none
+s3FilesHost: none
+s3FilesSecretAccessKey: none
+s3BAASAccessKeyID: none
+s3BAASSecretAccessKey: none
+imageTag: v2.0.0-alpha.9
+registry: registry.<basedomain>/lagoon
+
+api:
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/tls-acme: "true"
+    hosts:
+    - host: api.<basedomain>
+      paths:
+      - /
+    tls:
+      - secretName: api-tls
+        hosts:
+          - api.<basedomain>
+
+keycloak:
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/tls-acme: "true"
+    hosts:
+    - host: keycloak.<basedomain>
+      paths:
+      - /
+    tls:
+      - secretName: keycloak-tls
+        hosts:
+          - keycloak.<basedomain>
+
+webhookHandler:
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/tls-acme: "true"
+    hosts:
+    - host: webhookhandler.<basedomain>
+      paths:
+      - /
+    tls:
+      - secretName: webhookhandler-tls
+        hosts:
+          - webhookhandler.<basedomain>
+
+ui:
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/tls-acme: "true"
+    hosts:
+    - host: ui.<basedomain>
+      paths:
+      - /
+    tls:
+      - secretName: ui-tls
+        hosts:
+          - ui.<basedomain>
+
+backupHandler:
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/tls-acme: "true"
+    hosts:
+    - host: backuphandler.<basedomain>
+      paths:
+      - /
+    tls:
+      - secretName: backuphandler-tls
+        hosts:
+          - backuphandler.<basedomain>
+
+drushAlias:
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/tls-acme: "true"
+    hosts:
+    - host: drushalias.<basedomain>
+      paths:
+      - /
+    tls:
+      - secretName: drushalias-tls
+        hosts:
+          - drushalias.<basedomain>
+
+ssh:
+  service:
+    type: LoadBalancer
+    port: 22
+
+
+broker:
+  serviceMonitor:
+    enabled: false
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/tls-acme: "true"
+    hosts:
+    - host: broker.<basedomain>
+      paths:
+      - /
+    tls:
+      - secretName: broker-tls
+        hosts:
+          - broker.<basedomain>
+
+webhookHandler:
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/tls-acme: "true"
+    hosts:
+    - host: webhookhandler.<basedomain>
+      paths:
+      - /
+    tls:
+      - secretName: webhookhandler-tls
+        hosts:
+          - webhookhandler.<basedomain>

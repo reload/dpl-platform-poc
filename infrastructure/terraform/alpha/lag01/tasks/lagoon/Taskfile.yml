@@ -1,0 +1,58 @@
+version: '3'
+
+tasks:
+  harbor:install:
+    cmds:
+      - |
+        helm upgrade  \
+        --install \
+        --create-namespace \
+        --namespace harbor \
+        --wait \
+        --set-string "expose.ingress.annotations.kubernetes\.io\/tls-acme=true" \
+        --set "expose.ingress.hosts.core=registry.lagoon.lag01.dplpoc.reload.dk" \
+        --set "externalURL=https://registry.lagoon.lag01.dplpoc.reload.dk" \
+        --set chartmuseum.enabled=false \
+        --set clair.enabled=false \
+        --set notary.enabled=false \
+        --set trivy.enabled=true \
+        --set jobservice.jobLogger=stdout \
+        --set registry.replicas=1 \
+        --version=1.5.2 \
+        harbor \
+        harbor/harbor
+
+  dbaas:install:
+    env:
+      MARIADB_HOSTNAME:
+        sh: terraform output -json | jq --raw-output ".mariadb_hostname.value"
+      MARIADB_SERVERNAME:
+        sh: terraform output -json | jq --raw-output ".mariadb_servername.value"
+      MARIADB_USER:
+        sh: terraform output -json | jq --raw-output ".mariadb_user.value"
+      MARIADB_PASSWORD:
+        sh: terraform output -json | jq --raw-output ".mariadb_password.value"
+    desc: Installs Ingress.
+    cmds:
+      - helm repo add amazeeio https://amazeeio.github.io/charts/
+      - helm repo update
+      - helm upgrade --install --create-namespace --namespace dbaas-operator-system dbaas amazeeio/dbaas-operator
+      - envsubst < manifests/mariadbprovider.yaml | kubectl apply -f -
+
+  test:
+    desc: "Create test database"
+    env:
+      NAME: "{{.NAME}}"
+    cmds:
+      - envsubst < manifests/mariadbconsumer.yaml | kubectl apply -f -
+    preconditions:
+      - sh: "[ ! -z {{.NAME}} ]"
+        msg: "Env variable NAME is not set or empty."
+
+  core:install:
+    cmds:
+      - helm upgrade --install --create-namespace -f helm/core-values.yaml --namespace lagoon-core lagoon-core lagoon/lagoon-core
+
+  remote:install:
+    cmds:
+      - helm upgrade --install --create-namespace -f helm/remote-values.yaml --namespace lagoon lagoon-remote lagoon/lagoon-remote

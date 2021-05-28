@@ -1,0 +1,9 @@
+lagoon-build-deploy:
+  enabled: true
+  rabbitMQUsername: lagoon
+  rabbitMQPassword: <add>
+  rabbitMQHostname: lagoon-core-broker.lagoon-core.svc.cluster.local
+  lagoonTargetName: <add>
+  taskSSHHost: "<add ssh loadbalancer ip>"
+  taskSSHPort: "22"
+  taskAPIHost: "api.<basedomain>"

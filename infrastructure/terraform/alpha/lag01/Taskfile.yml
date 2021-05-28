@@ -1,0 +1,29 @@
+version: '3'
+
+vars:
+  workspace: '{{.WORKSPACE | default "lag01"}}'
+
+includes:
+  storage:
+    taskfile: ./tasks/storage/Taskfile.yml
+    dir: ./tasks/storage
+  ingress:
+    taskfile: ./tasks/ingress/Taskfile.yml
+    dir: ./tasks/ingress
+  certmanager:
+    taskfile: ./tasks/certmanager/Taskfile.yml
+    dir: ./tasks/certmanager
+  # db:
+  #   taskfile: ./tasks/db/Taskfile.yml
+  #   dir: ./tasks/db
+  lagoon:
+    taskfile: ./tasks/lagoon/Taskfile.yml
+    dir: ./tasks/lagoon
+
+tasks:
+  aks:auth:
+    desc: Authenticates to aks cluster.
+    status:
+      - "[ $(kubectl config view --output jsonpath='{.current-context}') == '{{.workspace}}-cluster' ] || exit 1"
+    cmds:
+      - az aks get-credentials --resource-group {{.workspace}} --name cluster
