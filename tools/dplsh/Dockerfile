@@ -10,7 +10,9 @@ FROM hashicorp/terraform:0.15.1 as terraform
 # We use the official azure cli as a base-image. It is itself based on alpine
 # and is quite minimal.
 FROM mcr.microsoft.com/azure-cli:$AZURE_CLI_TAG
-ARG TASK_VERSION=v3.0.0
+ARG TASK_VERSION=v3.4.2
+ARG STERN_RELEASE=1.11.0
+
 LABEL org.opencontainers.image.source https://github.com/reload/dpl-platform-poc
 
 SHELL ["/bin/bash", "-ox", "pipefail", "-c"]
@@ -29,6 +31,10 @@ RUN apk add --no-cache \
 
 # Add task, a modern Make equivalent.
 RUN curl -sL https://taskfile.dev/install.sh | bash -s -- -b /usr/local/bin ${TASK_VERSION}
+
+# Add Stern, a multi pod and container log tailing tool.
+RUN curl -Lo /usr/local/bin/stern https://github.com/wercker/stern/releases/download/${STERN_RELEASE}/stern_linux_amd64 \
+  && chmod +x /usr/local/bin/stern
 
 WORKDIR /tmp
 
