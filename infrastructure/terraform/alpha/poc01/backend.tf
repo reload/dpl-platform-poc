@@ -13,10 +13,9 @@ terraform {
       version = "=2.58.0"
     }
     dnsimple = {
-      source = "dnsimple/dnsimple"
+      source  = "dnsimple/dnsimple"
       version = "0.5.3"
     }
-
   }
 }
 

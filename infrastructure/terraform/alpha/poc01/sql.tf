@@ -75,7 +75,7 @@ output "mariadb_user" {
 }
 
 output "mariadb_password" {
-  value = azurerm_mariadb_server.sql.administrator_login_password
+  value     = azurerm_mariadb_server.sql.administrator_login_password
   sensitive = true
 }
 
