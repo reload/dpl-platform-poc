@@ -1,26 +1,45 @@
 version: '3'
 
+vars:
+  GRAFANA_PORT: 3000
+env:
+  GRAFANA_POD:
+    sh: kubectl get pods --namespace loki -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" -o jsonpath="{.items[0].metadata.name}"
+
 tasks:
   install:
-    dir: "$TASK_MODULES_DIR/Loki"
+    desc: Installs Loki and dependencies.
+    env:
+      AZURE_STORAGE_CONTAINER_NAME:
+        sh: terraform output -json | jq --raw-output ".azure_blob_storage_container_name.value"
+      AZURE_STORAGE_ACCOUNT_NAME:
+        sh: terraform output -json | jq --raw-output ".azure_blob_storage_account_name.value"
+      AZURE_STORAGE_ACCOUNT_KEY:
+        sh: terraform output -json | jq --raw-output ".azure_blob_storage_account_key.value"
     deps: [kube:create:ns, helm:repo:add:grafana]
     cmds:
-      - helm upgrade --install loki -n loki -f conf/loki-values.yml grafana/loki
-      - helm upgrade --install -n loki promtail grafana/promtail --set "loki.serviceName=loki" --set "config.lokiAddress=http://loki:3100/loki/api/v1/push"
-      - helm upgrade --install grafana -n loki -f conf/grafana-values.yml grafana/grafana
+      - ./scripts/helmInstallLoki.sh
 
   kube:create:ns:
+    desc: Creates Loki namespace.
     cmds:
       - kubectl create namespace loki --dry-run=client -o yaml | kubectl apply -f -
 
   helm:repo:add:grafana:
+    desc: Adds Grafana repo to Helm. Used by Loki and its dependencies.
     cmds:
       - helm repo add grafana https://grafana.github.io/helm-charts && helm repo update
 
-  grafana:get:password:
+  grafana:password:get:
+    desc: Fetches the admin password for the Grafana web interface.
     cmds:
       - kubectl get secret -n loki grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
-
-  setup:
+  grafana:password:set:
+    desc: Fetches the admin password for the Grafana web interface.
     cmds:
-      - task: install
+      - kubectl exec -n loki --tty $GRAFANA_POD -- grafana-cli admin reset-admin-password {{.CLI_ARGS}}
+
+  grafana:port:forward:
+     desc: Forwards Grafana web interface port to localhost
+     cmds:
+       - kubectl -n loki port-forward $GRAFANA_POD {{.GRAFANA_PORT}}

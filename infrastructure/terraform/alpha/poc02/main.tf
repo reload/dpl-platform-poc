@@ -32,3 +32,5 @@ resource "azurerm_kubernetes_cluster" "cluster" {
     }
   }
 }
+
+data "azurerm_client_config" "current" {}
