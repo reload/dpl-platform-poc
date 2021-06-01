@@ -5,7 +5,9 @@ vars:
 
 includes:
   ingress: ./task_modules/Ingress/Taskfile.yml
-  logging: ./task_modules/Loki/Taskfile.yml
+  logging:
+    taskfile: ./task_modules/Loki/Taskfile.yml
+    dir: ./task_modules/Loki
   cert-manager: ./task_modules/CertManager/Taskfile.yml
   demo-apps: ./task_modules/DemoApplications/Taskfile.yml
 
@@ -23,7 +25,7 @@ tasks:
 
   ingress:setup:
     desc: Installs ingress and cert manager.
-    deps: [aks:mount]
+    deps: [aks:auth]
     cmds:
       # Setup Ingress.
       - task: ingress:setup
@@ -32,17 +34,17 @@ tasks:
  
   demo-apps:setup:
     desc: Installs demo applications.
-    deps: [aks:mount]
+    deps: [aks:auth]
     cmds:
       - task: demo-apps:install
  
   logging:setup:
     desc: Add Loki logging.
-    deps: [aks:mount]
+    deps: [aks:auth]
     cmds:
-      - task: logging:setup
+      - task: logging:install
  
-  aks:mount:
+  aks:auth:
     desc: Authenticates to aks cluster.
     status:
       - "[ $(kubectl config view --output jsonpath='{.current-context}') == '{{.workspace}}-cluster' ] || exit 1"
@@ -54,7 +56,7 @@ tasks:
     deps:
       - infrastructure:build
     cmds:
-      - task: aks:mount
+      - task: aks:auth
       - task: ingress:setup
       - task: logging:setup
       - task: demo-apps:setup

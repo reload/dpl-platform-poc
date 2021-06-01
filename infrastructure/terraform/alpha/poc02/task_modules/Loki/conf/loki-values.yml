@@ -6,3 +6,21 @@ config:
   table_manager:
     retention_deletes_enabled: true
     retention_period: 720h
+  schema_config:
+    configs:
+      - from: 2020-12-22
+        store: boltdb-shipper
+        object_store: azure
+        schema: v11
+        index:
+          prefix: loki_index_
+          period: 24h
+  storage_config:
+    boltdb_shipper:
+      active_index_directory: /data/loki/index
+      shared_store: azure
+      cache_location: /data/loki/boltdb-cache
+    azure:
+      container_name: $AZURE_STORAGE_CONTAINER_NAME
+      account_name: $AZURE_STORAGE_ACCOUNT_NAME
+      account_key: $AZURE_STORAGE_ACCOUNT_KEY
