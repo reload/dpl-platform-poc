@@ -36,5 +36,5 @@ output "azure_blob_storage_account_name" {
 
 output "azure_blob_storage_account_key" {
   sensitive = true
-  value = azurerm_storage_account.sa.primary_access_key
+  value     = azurerm_storage_account.sa.primary_access_key
 }
