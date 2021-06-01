@@ -59,6 +59,6 @@ resource "azurerm_kubernetes_cluster_node_pool" "app" {
   enable_auto_scaling    = false
 
   vm_size    = "Standard_D4s_v3"
-  node_count = 1
+  node_count = 3
   max_pods   = 60
 }
