@@ -43,7 +43,7 @@ resource "azurerm_mariadb_server" "sql" {
 }
 
 resource "azurerm_mariadb_firewall_rule" "anyany" {
-  name                = "any-anu"
+  name                = "any-any"
   resource_group_name = azurerm_resource_group.rg.name
   server_name         = azurerm_mariadb_server.sql.name
   start_ip_address    = "0.0.0.0"
