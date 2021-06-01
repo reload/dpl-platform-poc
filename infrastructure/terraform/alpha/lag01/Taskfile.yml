@@ -19,6 +19,9 @@ includes:
   lagoon:
     taskfile: ./tasks/lagoon/Taskfile.yml
     dir: ./tasks/lagoon
+  loki:
+    taskfile: ./tasks/loki/Taskfile.yml
+    dir: ./tasks/loki
 
 tasks:
   aks:auth:
