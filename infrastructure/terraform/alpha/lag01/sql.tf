@@ -31,7 +31,7 @@ resource "azurerm_mariadb_server" "sql" {
 
   sku_name   = "GP_Gen5_2"
   storage_mb = 5120
-  version    = "10.2"
+  version    = "10.3"
 
   auto_grow_enabled            = true
   backup_retention_days        = 7
