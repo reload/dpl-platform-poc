@@ -2,8 +2,6 @@
 set -euxo pipefail
 IFS=$'\n\t'
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
 if [[ $# -lt 1 ]] ; then
     echo "Syntax: $0 <ingress-ip> <resource-group>"
     exit 1
