@@ -1,0 +1,8 @@
+---
+apiVersion: mariadb.amazee.io/v1
+kind: MariaDBConsumer
+metadata:
+  name: $NAME
+  namespace: dbaas-operator-system
+spec:
+  environment: development

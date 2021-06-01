@@ -31,7 +31,7 @@ resource "azurerm_mariadb_server" "sql" {
 
   sku_name   = "GP_Gen5_2"
   storage_mb = 5120
-  version    = "10.2"
+  version    = "10.3"
 
   auto_grow_enabled            = true
   backup_retention_days        = 7
@@ -43,7 +43,7 @@ resource "azurerm_mariadb_server" "sql" {
 }
 
 resource "azurerm_mariadb_firewall_rule" "anyany" {
-  name                = "any-anu"
+  name                = "any-any"
   resource_group_name = azurerm_resource_group.rg.name
   server_name         = azurerm_mariadb_server.sql.name
   start_ip_address    = "0.0.0.0"

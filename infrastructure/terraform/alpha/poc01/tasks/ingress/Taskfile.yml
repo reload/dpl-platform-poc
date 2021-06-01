@@ -1,0 +1,22 @@
+version: '3'
+
+tasks:
+  kube:create:ns:
+    desc: Creates ingress namespace if it does not exist.
+    cmds:
+      - kubectl create namespace ingress-nginx --dry-run=client -o yaml | kubectl apply -f -
+
+  install:
+    vars:
+      ingress_ip:
+        sh: terraform output -json | jq --raw-output ".ingress_ip.value"
+      resourcegroup_name: poc01
+    desc: Installs Ingress.
+    deps: [kube:create:ns]
+    cmds:
+      - ./scripts/helmInstallnginxIngress.sh {{.ingress_ip}} {{.resourcegroup_name}}
+
+  setup:
+    desc: Setting up everything releated to Ingress.
+    cmds:
+      - task: install

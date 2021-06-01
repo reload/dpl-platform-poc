@@ -1,0 +1,15 @@
+---
+apiVersion: mariadb.amazee.io/v1
+kind: MariaDBProvider
+metadata:
+  name: mariadbprovider-development
+  namespace: dbaas-operator-system
+spec:
+  environment: production
+  type: azure
+  hostname: $MARIADB_HOSTNAME
+  readReplicaHostnames:
+  - $MARIADB_HOSTNAME
+  password: $MARIADB_PASSWORD
+  port: '3306'
+  user: $MARIADB_USER@$MARIADB_HOSTNAME

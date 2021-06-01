@@ -3,7 +3,7 @@ variable "location" {
 }
 
 variable "workspace" {
-  default = "poc01"
+  default = "lag01"
 }
 
 variable "sql_login_seed" {

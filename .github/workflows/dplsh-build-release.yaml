@@ -55,7 +55,7 @@ jobs:
           IMAGE_VERSION=$(echo ${GITHUB_REF_SLUG} | sed -e 's/^${{env.image}}-//')
 
           # Push the service-image to the github registry.
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{env.repo}} -u ${{ github.actor }} --password-stdin
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{env.repo}} -u username-is-ignored --password-stdin
           # Tag latest and release version
           docker tag working-image:0.0.0 ${{env.image-url}}:$IMAGE_VERSION
           docker tag working-image:0.0.0 ${{env.image-url}}:latest

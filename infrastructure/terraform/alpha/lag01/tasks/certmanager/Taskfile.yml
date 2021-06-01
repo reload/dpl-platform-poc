@@ -1,0 +1,8 @@
+version: '3'
+
+tasks:
+  install:
+    cmds:
+      - ./scripts/helmInstallCertManager.sh
+      - kubectl apply -f manifests/cert-manager-issuer-production.yml
+      - kubectl apply -f manifests/cert-manager-issuer-staging.yml
