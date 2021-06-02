@@ -24,6 +24,11 @@ includes:
     dir: ./tasks/loki
 
 tasks:
+  d:
+    desc: Decode base64 strings
+    cmds:
+      - echo {{.CLI_ARGS}} | base64 -d  
+
   aks:auth:
     desc: Authenticates to aks cluster.
     status:
