@@ -24,7 +24,7 @@ tasks:
   d:
     desc: Decode base64 strings
     cmds:
-      - echo {{.CLI_ARGS}} | base64 -d  
+      - echo {{ .CLI_ARGS | b64dec }}
 
   aks:auth:
     desc: Authenticates to aks cluster.
