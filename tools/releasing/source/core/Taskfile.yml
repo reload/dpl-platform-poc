@@ -11,8 +11,8 @@ vars:
   DOCKER_IMAGE_NAMESPACE: '{{.DOCKER_IMAGE_NAMESPACE | default "dpl-poc"}}'
   DOCKER_IMAGE_PREFIX: "{{ .REGISTRY }}/{{ .ORG }}/{{ .DOCKER_IMAGE_NAMESPACE }}"
   DOCKER_IMAGE_DIR: "{{ .REPOSITORY_DIR }}/docker"
-  GIT_SHA_CORE:
-    sh: (cd {{ .REPOSITORY_DIR }} && git rev-parse HEAD)
+  # GIT_SHA_CORE:
+  #   sh: (cd {{ .REPOSITORY_DIR }} && git rev-parse HEAD)
   IMAGE_SOURCE: "{{ .DOCKER_IMAGE_PREFIX }}-source:{{ .VERSION }}"
   IMAGE_CLI: "{{ .DOCKER_IMAGE_PREFIX }}-cli:{{ .VERSION }}"
   IMAGE_NGINX: "{{ .DOCKER_IMAGE_PREFIX }}-nginx:{{ .VERSION }}"
@@ -26,6 +26,13 @@ tasks:
     preconditions:
       - sh: "[ ! -z {{.CR_PAT}} ]"
         msg: "Env variable CR_PAT is not set or empty."
+
+  core:repo:clone:
+    summary: Get a git cloned copy of the core repository.
+    cmds:
+      - git clone {{ .REPOSITORY_URL }} {{ .REPOSITORY_DIR }}
+    status:
+      - "[ -d '{{ .REPOSITORY_DIR }}' ] || exit 1"
 
   core:source:build:
     summary: Build core source image.
