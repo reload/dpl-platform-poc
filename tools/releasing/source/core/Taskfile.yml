@@ -5,13 +5,15 @@ dotenv: [".task.env"]
 vars:
   REGISTRY: '{{.REGISTRY | default "ghcr.io"}}'
   ORG: '{{.ORG | default "reload"}}'
-  BUILD_NO: "{{ .BUILD_NO }}"
   VERSION: "{{ .VERSION }}"
+  REPOSITORY_URL: '{{.REPOSITORY_URL | default "git@github.com:reload/dpl-poc-core.git"}}'
+  REPOSITORY_DIR: "core_repository"
   DOCKER_IMAGE_NAMESPACE: '{{.DOCKER_IMAGE_NAMESPACE | default "dpl-poc"}}'
   DOCKER_IMAGE_PREFIX: "{{ .REGISTRY }}/{{ .ORG }}/{{ .DOCKER_IMAGE_NAMESPACE }}"
-  REPOSITORY_DIR: "core_repository"
   DOCKER_IMAGE_DIR: "{{ .REPOSITORY_DIR }}/docker"
-  IMAGE_SOURCE: "{{ .DOCKER_IMAGE_PREFIX }}-source:{{ .BUILD_NO }}"
+  GIT_SHA_CORE:
+    sh: (cd {{ .REPOSITORY_DIR }} && git rev-parse HEAD)
+  IMAGE_SOURCE: "{{ .DOCKER_IMAGE_PREFIX }}-source:{{ .VERSION }}"
   IMAGE_CLI: "{{ .DOCKER_IMAGE_PREFIX }}-cli:{{ .VERSION }}"
   IMAGE_NGINX: "{{ .DOCKER_IMAGE_PREFIX }}-nginx:{{ .VERSION }}"
   IMAGE_PHP: "{{ .DOCKER_IMAGE_PREFIX }}-php:{{ .VERSION }}"
@@ -28,10 +30,10 @@ tasks:
   core:source:build:
     summary: Build core source image.
     cmds:
-      - docker build -f {{ .DOCKER_IMAGE_DIR }}/core.dockerfile --tag {{ .IMAGE_SOURCE }} .
+      - docker build -f {{ .DOCKER_IMAGE_DIR }}/core.dockerfile --tag {{ .IMAGE_SOURCE }} {{ .REPOSITORY_DIR }}
     preconditions:
-      - sh: "[ ! -z {{.BUILD_NO}} ]"
-        msg: "Env variable BUILD_NO is not set or empty."
+      - sh: "[ ! -z {{ .VERSION }} ]"
+        msg: "Env variable VERSION is not set or empty."
 
   core:source:push:
     summary: Push core source image to container registry.
@@ -39,21 +41,18 @@ tasks:
     cmds:
       - docker push {{ .IMAGE_SOURCE }}
     preconditions:
-      - sh: "[ ! -z {{.BUILD_NO}} ]"
-        msg: "Env variable BUILD_NO is not set or empty."
+      - sh: "[ ! -z {{ .VERSION }} ]"
+        msg: "Env variable VERSION is not set or empty."
 
   core:build:
     summary: Build core images.
     cmds:
-      - docker build -f {{ .DOCKER_IMAGE_DIR }}/cli.dockerfile --build-arg CORE_RELEASE={{ .IMAGE_SOURCE }} --tag {{ .IMAGE_CLI }} .
-      - docker build -f {{ .DOCKER_IMAGE_DIR }}/nginx.dockerfile --build-arg IMAGE_CLI={{ .IMAGE_CLI }} --tag {{ .IMAGE_NGINX }} .
-      - docker build -f {{ .DOCKER_IMAGE_DIR }}/php.dockerfile --build-arg IMAGE_CLI={{ .IMAGE_CLI }} --tag {{ .IMAGE_PHP }} .
+      - docker build -f {{ .DOCKER_IMAGE_DIR }}/cli.dockerfile --build-arg CORE_RELEASE={{ .IMAGE_SOURCE }} --tag {{ .IMAGE_CLI }} {{ .REPOSITORY_DIR }}
+      - docker build -f {{ .DOCKER_IMAGE_DIR }}/nginx.dockerfile --build-arg IMAGE_CLI={{ .IMAGE_CLI }} --tag {{ .IMAGE_NGINX }} {{ .REPOSITORY_DIR }}
+      - docker build -f {{ .DOCKER_IMAGE_DIR }}/php.dockerfile --build-arg IMAGE_CLI={{ .IMAGE_CLI }} --tag {{ .IMAGE_PHP }} {{ .REPOSITORY_DIR }}
     preconditions:
       - sh: "[ ! -z {{.VERSION}} ]"
         msg: "Env variable VERSION is not set or empty."
-
-      - sh: "[ ! -z {{.BUILD_NO}} ]"
-        msg: "Env variable BUILD_NO is not set or empty."
 
   core:push:
     summary: Push core image to container registry.
@@ -76,3 +75,4 @@ tasks:
     preconditions:
       - sh: "[ ! -z {{.VERSION}} ]"
         msg: "Env variable VERSION is not set or empty."
+ 
