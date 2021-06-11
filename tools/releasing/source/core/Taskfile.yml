@@ -36,6 +36,7 @@ tasks:
 
   core:source:build:
     summary: Build core source image.
+    deps: [core:repo:clone]
     cmds:
       - docker build -f {{ .DOCKER_IMAGE_DIR }}/core.dockerfile --tag {{ .IMAGE_SOURCE }} {{ .REPOSITORY_DIR }}
     preconditions:
@@ -53,6 +54,7 @@ tasks:
 
   core:build:
     summary: Build core images.
+    deps: [core:repo:clone]
     cmds:
       - docker build -f {{ .DOCKER_IMAGE_DIR }}/cli.dockerfile --build-arg CORE_RELEASE={{ .IMAGE_SOURCE }} --tag {{ .IMAGE_CLI }} {{ .REPOSITORY_DIR }}
       - docker build -f {{ .DOCKER_IMAGE_DIR }}/nginx.dockerfile --build-arg IMAGE_CLI={{ .IMAGE_CLI }} --tag {{ .IMAGE_NGINX }} {{ .REPOSITORY_DIR }}
