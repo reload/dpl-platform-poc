@@ -148,7 +148,7 @@ tasks:
   deploy:webmaster:
     desc: Deploy deploy a single webmaster site
     cmds:
-      - bin/deploy-webmaster.sh {{ .SITE }} {{ .VERSION }}
+      - bin/deploy-webmaster.sh {{ .VERSION }} {{ .SITE }}
     preconditions:
       - sh: "[ ! -z {{.VERSION}} ]"
         msg: "Env variable VERSION is not set or empty."
