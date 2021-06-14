@@ -1,0 +1,156 @@
+version: "3"
+
+dotenv: [".task.env"]
+
+vars:
+  REGISTRY: '{{.REGISTRY | default "ghcr.io"}}'
+  ORG: '{{.ORG | default "reload"}}'
+  BASE_NAME: "{{ .BASE_NAME }}"
+
+  VERSION: "{{ .VERSION }}"
+  BASE_REPOSITORY_URL: "git@github.com:reload/dpl-poc-base-{{.BASE_NAME}}.git"
+
+  BASE_DIR: "bases/{{.BASE_NAME}}"
+  DOCKER_IMAGE_ROOT: "{{ .REGISTRY }}/{{ .ORG }}"
+  DOCKER_IMAGE_DIR: "{{ .BASE_DIR }}/docker"
+  BASE_KB_REPOSITORY_URL: '{{.BASE_KB_REPOSITORY_URL | default "git@github.com:reload/dpl-poc-base-webmaster-kb.git"}}'
+  BASE_KB_REPOSITORY_CLONE: "bases/webmaster-kb"
+
+  IMAGE_SOURCE: "{{ .DOCKER_IMAGE_ROOT }}/dpl-poc-base-{{ .BASE_NAME }}-source:{{ .VERSION }}"
+  IMAGE_CLI: "{{ .DOCKER_IMAGE_ROOT }}/dpl-poc-base-{{ .BASE_NAME }}-cli:{{ .VERSION }}"
+  IMAGE_NGINX: "{{ .DOCKER_IMAGE_ROOT }}/dpl-poc-base-{{ .BASE_NAME }}-nginx:{{ .VERSION }}"
+  IMAGE_PHP: "{{ .DOCKER_IMAGE_ROOT }}/dpl-poc-base-{{ .BASE_NAME }}-php:{{ .VERSION }}"
+
+tasks:
+  ghcr:login:
+    summary: Login into Github Container Registry
+    cmds:
+      - echo {{ .CR_PAT }} | docker login {{ .REGISTRY }} -u username-not-used --password-stdin
+    preconditions:
+      - sh: "[ ! -z {{.CR_PAT}} ]"
+        msg: "Env variable CR_PAT is not set or empty."
+
+  base:init:
+    summary: Get a git cloned copy of the core repository.
+    cmds:
+      - test -d {{ .BASE_DIR }} || git clone {{ .BASE_REPOSITORY_URL }} {{ .BASE_DIR }}
+      - cd {{ .BASE_DIR }} && git reset --hard main && git clean -df
+    preconditions:
+      - sh: "[ ! -z {{ .BASE_NAME }} ]"
+        msg: "Env variable BASE_NAME is not set or empty."
+
+  base:build:
+    summary: Build source image.
+    deps:
+      - task: base:init
+        vars:
+          BASE_DIR: "bases/{{ .BASE_NAME }}"
+    vars:
+      CORE_BUILD: "{{ .DOCKER_IMAGE_ROOT }}/dpl-poc-base-core-source:{{ .CORE_VERSION }}"
+    cmds:
+      - |
+        docker build \
+          -f {{ .BASE_DIR }}/docker/base-source.dockerfile \
+          --build-arg CORE_BUILD={{ .CORE_BUILD }} \
+          --tag {{ .IMAGE_SOURCE }} \
+          {{ .BASE_DIR }}
+    preconditions:
+      - sh: "[ ! -z {{ .VERSION }} ]"
+        msg: "Env variable VERSION is not set or empty."
+      # Required by the IMAGE_SOURCE variable
+      - sh: "[ ! -z {{ .BASE_NAME }} ]"
+        msg: "Env variable BASE_NAME is not set or empty."
+      - sh: "[ {{ .BASE_NAME }} = core ] || [ ! -z '{{.CORE_VERSION}}' ]"
+        msg: "Env variable CORE_VERSION is not set or empty."
+
+  base:build:publish:
+    summary: Push core source image to container registry.
+    deps: [ghcr:login]
+    cmds:
+      - docker push {{ .IMAGE_SOURCE }}
+    preconditions:
+      - sh: "[ ! -z {{ .VERSION }} ]"
+        msg: "Env variable VERSION is not set or empty."
+        # Required by the IMAGE_SOURCE variable
+      - sh: "[ ! -z {{ .BASE_NAME }} ]"
+        msg: "Env variable BASE_NAME is not set or empty."
+
+  base:package:
+    summary: Build release images.
+    deps:
+      - task: base:init
+    vars:
+      # Following arguments are only actually used for non-core bases.
+      CORE_IMAGE_SOURCE: "{{ .DOCKER_IMAGE_ROOT }}/dpl-poc-base-core-source:{{ .CORE_VERSION }}"
+      CORE_IMAGE_CLI: "{{ .DOCKER_IMAGE_ROOT }}/dpl-poc-base-core-cli:{{ .CORE_VERSION }}"
+      CORE_IMAGE_NGINX: "{{ .DOCKER_IMAGE_ROOT }}/dpl-poc-base-core-nginx:{{ .CORE_VERSION }}"
+      CORE_IMAGE_PHP: "{{ .DOCKER_IMAGE_ROOT }}/dpl-poc-base-core-php:{{ .CORE_VERSION }}"
+    cmds:
+      - |
+        docker build -f {{ .BASE_DIR }}/docker/cli.dockerfile \
+          --build-arg SOURCE_BUILD={{ .IMAGE_SOURCE }} \
+          --build-arg CORE_CLI_IMAGE={{ .CORE_IMAGE_CLI }} \
+          --tag {{ .IMAGE_CLI }} \
+          {{ .BASE_DIR }}
+      - |
+        docker build -f {{ .BASE_DIR }}/docker/nginx.dockerfile \
+          --build-arg SOURCE_BUILD={{ .IMAGE_SOURCE }} \
+          --build-arg CORE_NGINX_IMAGE_RELEASE={{ .CORE_IMAGE_NGINX }} \
+          --tag {{ .IMAGE_NGINX }} {{ .BASE_DIR }}
+      - |
+        docker build -f {{ .BASE_DIR }}/docker/php.dockerfile \
+          --build-arg SOURCE_BUILD={{ .IMAGE_SOURCE }} \
+          --build-arg CORE_PHP_IMAGE_RELEASE={{ .CORE_IMAGE_PHP }} \
+          --tag {{ .IMAGE_PHP }} \
+          {{ .BASE_DIR }}
+    preconditions:
+      - sh: "[ ! -z {{.VERSION}} ]"
+        msg: "Env variable VERSION is not set or empty."
+      - sh: "[ ! -z {{.BASE_NAME}} ]"
+        msg: "Env variable BASE_NAME is not set or empty."
+      - sh: "[ {{ .BASE_NAME }} = core ] || [ ! -z '{{.CORE_VERSION}}' ]"
+        msg: "Env variable CORE_VERSION is not set or empty."
+
+  base:package:publish:
+    summary: Push core image to container registry.
+    deps: [ghcr:login]
+    cmds:
+      - docker push {{ .IMAGE_CLI }}
+      - docker push {{ .IMAGE_NGINX }}
+      - docker push {{ .IMAGE_PHP }}
+    preconditions:
+      - sh: "[ ! -z {{.VERSION}} ]"
+        msg: "Env variable VERSION is not set or empty."
+
+  base:build-package-publish:
+    desc: Build and push all core docker images.
+    cmds:
+      - task: base:build
+      - task: base:build:publish
+      - task: base:package
+      - task: base:package:publish
+    preconditions:
+      - sh: "[ ! -z {{.VERSION}} ]"
+        msg: "Env variable VERSION is not set or empty."
+      - sh: "[ ! -z {{.BASE_NAME}} ]"
+        msg: "Env variable BASE_NAME is not set or empty."
+      - sh: "[ {{ .BASE_NAME }} = core ] || [ ! -z '{{.CORE_VERSION}}' ]"
+        msg: "Env variable CORE_VERSION is not set or empty."
+
+  deploy:editor:
+    desc: Deploy to all editor sites
+    cmds:
+      - bin/deploy-editors.sh {{ .VERSION }}
+    preconditions:
+      - sh: "[ ! -z {{.VERSION}} ]"
+        msg: "Env variable VERSION is not set or empty."
+
+  deploy:webmaster:
+    desc: Deploy deploy a single webmaster site
+    cmds:
+      - bin/deploy-webmaster.sh {{ .SITE }} {{ .VERSION }}
+    preconditions:
+      - sh: "[ ! -z {{.VERSION}} ]"
+        msg: "Env variable VERSION is not set or empty."
+      - sh: "[ ! -z {{.SITE}} ]"
+        msg: "Env variable SITE is not set or empty."
