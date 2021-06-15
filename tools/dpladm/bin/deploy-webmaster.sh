@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -exuo pipefail
+set -euo pipefail
 IFS=$'\n\t'
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -16,5 +16,5 @@ cd "${SCRIPT_DIR}/.."
 
 # Deploy site
 sync "env-webmaster-${SITE}"
-deploy "env-webmaster-${SITE}" "webmaster" "${TAG}"
+deploy "env-webmaster-${SITE}" "webmaster-${SITE}" "${TAG}"
 

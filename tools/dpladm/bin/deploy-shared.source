@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
-set -exuo pipefail
+set -euo pipefail
 
 function sync {
   local sitename=$1
-  echo "Syncing ${sitename}"
+  echo "** Syncing ${sitename}"
 
   pushd environments > /dev/null
   if [[ ! -d "dpl-poc-${sitename}" ]]; then
     git clone "git@github.com:reload/dpl-poc-${sitename}.git" dpl-poc-${sitename}
   fi
   cd dpl-poc-${sitename}
-  git fetch
-  git reset --hard origin/main
-  git clean -df
+  git fetch --quiet
+  git reset --quiet --hard origin/main
+  git clean --quiet -df
   popd > /dev/null
 }
 
@@ -23,7 +23,7 @@ function deploy {
 
   local from_template='FROM ghcr.io/reload/dpl-poc-base-$BASE-$SERVICE:$TAG'
 
-  echo "Deploying release ${TAG} to ${sitename}"
+  echo "** Deploying release ${TAG} to ${sitename}"
 
   pushd "environments/dpl-poc-${sitename}"  > /dev/null
 
@@ -35,8 +35,9 @@ function deploy {
   TAG="${tag}" BASE="${base}" SERVICE=php envsubst '$TAG $BASE $SERVICE' > lagoon/php.dockerfile
 
   git add lagoon
-  git commit -m "Deploying version ${tag} of ${base} to ${sitename}"
-  git push
+  git commit --quiet -m "Deploying version ${tag} of ${base} to ${sitename}" --allow-empty
+  git push --quiet
+  echo "** - done"
   popd  > /dev/null
 }
 
